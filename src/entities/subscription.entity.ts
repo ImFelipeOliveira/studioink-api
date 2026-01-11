@@ -66,7 +66,7 @@ export class SubscriptionEntity {
   })
   gatewaySubscriptionId: string | null;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', nullable: true, update: true })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
@@ -80,7 +80,6 @@ export class SubscriptionEntity {
   @JoinColumn({ name: 'plan_id' })
   plan: PlanEntity;
 
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-return
   @OneToMany(() => InvoiceEntity, (invoice) => invoice.subscription)
   invoices: InvoiceEntity[];
 }

@@ -52,7 +52,7 @@ export class CommissionEntity {
   @Column({ name: 'paid_at', type: 'timestamp', nullable: true })
   paidAt: Date | null;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', nullable: true, update: true })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })

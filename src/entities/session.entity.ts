@@ -55,7 +55,7 @@ export class SessionEntity {
   @Column({ name: 'finished_at', type: 'timestamp', nullable: true })
   finishedAt: Date | null;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', nullable: true, update: true })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })

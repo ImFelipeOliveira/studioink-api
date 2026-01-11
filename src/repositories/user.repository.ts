@@ -15,9 +15,14 @@ export class UserRepository {
     return await this.repository.findOne({ where: { email: email } });
   }
 
-  public async createUser(registerUserDTO: RegisterUserDTO): Promise<number> {
+  public async createUser(
+    registerUserDTO: RegisterUserDTO,
+    passwordHash: string,
+  ): Promise<number> {
     const user: UserEntity = this.repository.create({
-      ...registerUserDTO,
+      name: registerUserDTO.name,
+      email: registerUserDTO.email,
+      passwordHash: passwordHash,
     });
     await this.repository.save(user);
     return user.id;

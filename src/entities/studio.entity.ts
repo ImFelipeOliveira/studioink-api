@@ -24,7 +24,7 @@ export class StudioEntity {
   @Column({ type: 'json', name: 'config_settings', nullable: true })
   configSettings: string;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', nullable: true, update: true })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })

@@ -38,7 +38,7 @@ export class TransactionEntity {
   @Column({ type: 'varchar', length: 255, nullable: true })
   description: string | null;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', nullable: true, update: true })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })

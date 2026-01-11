@@ -52,7 +52,7 @@ export class CustomerEntity {
   @Column({ name: 'ban_reason', type: 'text', nullable: true })
   banReason: string | null;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', nullable: true, update: true })
   createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
