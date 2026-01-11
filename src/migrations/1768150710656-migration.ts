@@ -1,0 +1,120 @@
+import { MigrationInterface, QueryRunner } from "typeorm";
+
+export class Migration1768150710656 implements MigrationInterface {
+    name = 'Migration1768150710656'
+
+    public async up(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`CREATE TABLE "customers" ("id" BIGSERIAL NOT NULL, "studio_id" bigint NOT NULL, "name" character varying, "email" character varying, "phone" character varying(20), "cpf" character varying(20), "birth_date" date, "total_spent" integer NOT NULL DEFAULT '0', "visits_count" integer NOT NULL DEFAULT '0', "is_banned" boolean NOT NULL DEFAULT false, "ban_reason" text, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "UQ_3008a8174e36a1f0a6025afd106" UNIQUE ("cpf", "studio_id"), CONSTRAINT "UQ_44710cd620a1785d2ced9d1cf51" UNIQUE ("phone", "studio_id"), CONSTRAINT "UQ_8cd5f2d17d649ffb06fe60befc7" UNIQUE ("email", "studio_id"), CONSTRAINT "PK_133ec679a801fab5e070f73d3ea" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "studios" ("id" BIGSERIAL NOT NULL, "name" character varying(255) NOT NULL, "slug" character varying(255) NOT NULL, "config_settings" json, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "UQ_0148777f9002509905fbb1bdb33" UNIQUE ("slug"), CONSTRAINT "PK_76ff398ef5041c4b42618ed6111" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "permissions" ("id" SERIAL NOT NULL, "name" character varying(100) NOT NULL, "slug" character varying(100) NOT NULL, CONSTRAINT "UQ_d090ad82a0e97ce764c06c7b312" UNIQUE ("slug"), CONSTRAINT "PK_920331560282b8bd21bb02290df" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "permission_role" ("permission_id" integer NOT NULL, "role_id" bigint NOT NULL, CONSTRAINT "PK_559155e68c73c7b70d216b3e2e9" PRIMARY KEY ("permission_id", "role_id"))`);
+        await queryRunner.query(`CREATE TABLE "roles" ("id" BIGSERIAL NOT NULL, "name" character varying(50) NOT NULL, "slug" character varying(50) NOT NULL, "description" text, CONSTRAINT "UQ_881f72bac969d9a00a1a29e1079" UNIQUE ("slug"), CONSTRAINT "PK_c1433d71a4838793a49dcad46ab" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "role_user" ("id" BIGSERIAL NOT NULL, "user_id" bigint NOT NULL, "role_id" bigint NOT NULL, "studio_id" bigint NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), "userId" bigint, CONSTRAINT "PK_573bb667bae1d35cfabfe0ac774" PRIMARY KEY ("id", "user_id", "role_id", "studio_id"))`);
+        await queryRunner.query(`CREATE TABLE "users" ("id" BIGSERIAL NOT NULL, "name" character varying(255) NOT NULL, "email" character varying(255) NOT NULL, "password_hash" character varying(255) NOT NULL, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "UQ_97672ac88f789774dd47f7c8be3" UNIQUE ("email"), CONSTRAINT "PK_a3ffb1c0c8416b9fc6f907b7433" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."appointments_status_enum" AS ENUM('pending', 'confirmed', 'in_progress', 'completed', 'canceled', 'no_show')`);
+        await queryRunner.query(`CREATE TABLE "appointments" ("id" BIGSERIAL NOT NULL, "studio_id" bigint NOT NULL, "customer_id" bigint NOT NULL, "artist_id" bigint NOT NULL, "start_at" TIMESTAMP NOT NULL, "end_at" TIMESTAMP NOT NULL, "status" "public"."appointments_status_enum" NOT NULL DEFAULT 'pending', "quoted_price" integer, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_4a437a9a27e948726b8bb3e36ad" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."transactions_type_enum" AS ENUM('income', 'expense', 'payout')`);
+        await queryRunner.query(`CREATE TYPE "public"."transactions_payment_method_enum" AS ENUM('cash', 'credit_card', 'pix', 'debit')`);
+        await queryRunner.query(`CREATE TABLE "transactions" ("id" BIGSERIAL NOT NULL, "studio_id" bigint NOT NULL, "appointment_id" bigint, "type" "public"."transactions_type_enum" NOT NULL, "amount_cents" bigint NOT NULL, "payment_method" "public"."transactions_payment_method_enum", "gateway_fee_cents" bigint NOT NULL DEFAULT '0', "net_amount_cents" bigint NOT NULL, "description" text, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_a219afd8dd77ed80f5a862f1db9" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."invoices_status_enum" AS ENUM('open', 'paid', 'failed', 'void')`);
+        await queryRunner.query(`CREATE TABLE "invoices" ("id" BIGSERIAL NOT NULL, "studio_id" bigint NOT NULL, "subscription_id" bigint NOT NULL, "amount_cents" bigint NOT NULL, "status" "public"."invoices_status_enum" NOT NULL DEFAULT 'open', "paid_at" TIMESTAMP, "gateway_invoice_id" character varying(255), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_668cef7c22a427fd822cc1be3ce" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "plans" ("id" SERIAL NOT NULL, "name" character varying(100) NOT NULL, "slug" character varying(100) NOT NULL, "description" text, "price_monthly_cents" bigint NOT NULL, "price_yearly_cents" bigint NOT NULL, "features" json NOT NULL, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "UQ_e7b71bb444e74ee067df057397e" UNIQUE ("slug"), CONSTRAINT "PK_3720521a81c7c24fe9b7202ba61" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."subscriptions_status_enum" AS ENUM('trialing', 'active', 'past_due', 'canceled', 'unpaid')`);
+        await queryRunner.query(`CREATE TABLE "subscriptions" ("id" BIGSERIAL NOT NULL, "studio_id" bigint NOT NULL, "plan_id" integer NOT NULL, "status" "public"."subscriptions_status_enum" NOT NULL DEFAULT 'trialing', "trial_ends_at" TIMESTAMP, "current_period_start" TIMESTAMP, "current_period_end" TIMESTAMP, "canceled_at" TIMESTAMP, "gateway_provider" character varying(50), "gateway_subscription_id" character varying(255), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "UQ_56abca5093a6498c2f1f62d4724" UNIQUE ("studio_id"), CONSTRAINT "PK_a87248d73155605cf782be9ee5e" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "inventory_categories" ("id" SERIAL NOT NULL, "studio_id" bigint, "name" character varying(100) NOT NULL, "slug" character varying(100) NOT NULL, "requires_batch_control" boolean NOT NULL DEFAULT false, "is_consumable" boolean NOT NULL DEFAULT true, "is_sellable" boolean NOT NULL DEFAULT false, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_9903ce18e20acdba3c32c997dc7" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "inventory_items" ("id" BIGSERIAL NOT NULL, "category_id" integer NOT NULL, "name" character varying(255), "sku" character varying(100), "cached_stock_quantity" integer NOT NULL DEFAULT '0', "attributes" json, "is_active" boolean NOT NULL DEFAULT true, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "UQ_395ec8d9e0cad6e3890b989fc1c" UNIQUE ("sku"), CONSTRAINT "PK_cf2f451407242e132547ac19169" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "inventory_batches" ("id" BIGSERIAL NOT NULL, "item_id" bigint NOT NULL, "batch_number" integer, "expiration_date" date, "quantity_initial" integer, "quantity_current" integer, "purchase_date" date, "unit_cost" integer, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_1b670b7f687d8b8c58ef8d4629a" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "session_materials" ("id" BIGSERIAL NOT NULL, "session_id" bigint NOT NULL, "batch_id" bigint NOT NULL, "quantity_used" integer, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_eb09bc17eb4958ad03df1e35be2" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TABLE "sessions" ("id" BIGSERIAL NOT NULL, "appointment_id" bigint NOT NULL, "consent_term_snapshot" text, "client_signature_url" character varying(500), "photo_before_url" character varying(500), "photo_after_url" character varying(500), "notes" text, "started_at" TIMESTAMP, "finished_at" TIMESTAMP, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "UQ_3f8511a9b3db3154aa3ded6b868" UNIQUE ("appointment_id"), CONSTRAINT "REL_3f8511a9b3db3154aa3ded6b86" UNIQUE ("appointment_id"), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."commissions_status_enum" AS ENUM('pending', 'paid')`);
+        await queryRunner.query(`CREATE TABLE "commissions" ("id" BIGSERIAL NOT NULL, "transaction_id" bigint NOT NULL, "artist_id" bigint NOT NULL, "calculation_basis_cents" bigint, "percentage_applied" integer NOT NULL, "amount_due_cents" bigint, "status" "public"."commissions_status_enum" NOT NULL DEFAULT 'pending', "paid_at" TIMESTAMP, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_2701379966e2e670bb5ff0ae78e" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`CREATE TYPE "public"."artist_profiles_commission_type_enum" AS ENUM('percentage', 'fixed', 'tiered')`);
+        await queryRunner.query(`CREATE TABLE "artist_profiles" ("id" BIGSERIAL NOT NULL, "role_id" bigint NOT NULL, "bio" text NOT NULL, "styles" json NOT NULL, "commission_type" "public"."artist_profiles_commission_type_enum" NOT NULL DEFAULT 'percentage', "default_commission_rate" integer NOT NULL, "calendar_color" integer NOT NULL, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), "userId" bigint, CONSTRAINT "PK_ac25695aca8798029b64dcc7196" PRIMARY KEY ("id", "role_id"))`);
+        await queryRunner.query(`CREATE TABLE "anamnesis_forms" ("id" BIGSERIAL NOT NULL, "customer_id" bigint NOT NULL, "answers" json NOT NULL, "signature_url" character varying, "signed_at" TIMESTAMP, "ip_address" character varying(45), "reviewed_by_artist_id" bigint, "reviewed_at" TIMESTAMP, "created_at" TIMESTAMP NOT NULL DEFAULT now(), "updated_at" TIMESTAMP DEFAULT now(), CONSTRAINT "PK_e2be47a2a4bd673c041eac99099" PRIMARY KEY ("id"))`);
+        await queryRunner.query(`ALTER TABLE "customers" ADD CONSTRAINT "FK_862d155297243383c2b6274ae56" FOREIGN KEY ("studio_id") REFERENCES "studios"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "permission_role" ADD CONSTRAINT "FK_ea144050277434b1ec4a3070614" FOREIGN KEY ("permission_id") REFERENCES "permissions"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "permission_role" ADD CONSTRAINT "FK_693f65986d1bd7b5bc973e30d76" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "role_user" ADD CONSTRAINT "FK_2a23ceb75c7511d0523c4aaf492" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "role_user" ADD CONSTRAINT "FK_78ee37f2db349d230d502b1c7ea" FOREIGN KEY ("role_id") REFERENCES "roles"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "role_user" ADD CONSTRAINT "FK_e7debc339652cd0123238ac9caf" FOREIGN KEY ("studio_id") REFERENCES "studios"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "appointments" ADD CONSTRAINT "FK_d3e61cac4c98efb5cb315826cbb" FOREIGN KEY ("studio_id") REFERENCES "studios"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "appointments" ADD CONSTRAINT "FK_2be3c78815aba227af1c3e8e413" FOREIGN KEY ("customer_id") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "appointments" ADD CONSTRAINT "FK_eeaa146d58c032a43a572cff419" FOREIGN KEY ("artist_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "transactions" ADD CONSTRAINT "FK_a393e904d8ad32e64d95d4d818e" FOREIGN KEY ("studio_id") REFERENCES "studios"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "transactions" ADD CONSTRAINT "FK_c09d54644d40718fb05980f350f" FOREIGN KEY ("appointment_id") REFERENCES "appointments"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "invoices" ADD CONSTRAINT "FK_b5e9c01bb6a949b307cc229ac4b" FOREIGN KEY ("studio_id") REFERENCES "studios"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "invoices" ADD CONSTRAINT "FK_5152c0aa0f851d9b95972b442e0" FOREIGN KEY ("subscription_id") REFERENCES "subscriptions"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "subscriptions" ADD CONSTRAINT "FK_56abca5093a6498c2f1f62d4724" FOREIGN KEY ("studio_id") REFERENCES "studios"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "subscriptions" ADD CONSTRAINT "FK_e45fca5d912c3a2fab512ac25dc" FOREIGN KEY ("plan_id") REFERENCES "plans"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "inventory_categories" ADD CONSTRAINT "FK_66ed00e3d64c865f0d9cc0ca8ce" FOREIGN KEY ("studio_id") REFERENCES "studios"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "inventory_items" ADD CONSTRAINT "FK_934d5a332b6870c7bb95643ab41" FOREIGN KEY ("category_id") REFERENCES "inventory_categories"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "inventory_batches" ADD CONSTRAINT "FK_df9c67302148072b1ee1113d3e1" FOREIGN KEY ("item_id") REFERENCES "inventory_items"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "session_materials" ADD CONSTRAINT "FK_ba72a490447f24c51fe95c0e763" FOREIGN KEY ("session_id") REFERENCES "sessions"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "session_materials" ADD CONSTRAINT "FK_3a07bbf0f3c8062a4df5d60ee78" FOREIGN KEY ("batch_id") REFERENCES "inventory_batches"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "sessions" ADD CONSTRAINT "FK_3f8511a9b3db3154aa3ded6b868" FOREIGN KEY ("appointment_id") REFERENCES "appointments"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "commissions" ADD CONSTRAINT "FK_7532e2ddc108af0943e1adba4ad" FOREIGN KEY ("transaction_id") REFERENCES "transactions"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "commissions" ADD CONSTRAINT "FK_411d5c03ec7173beb83a5957514" FOREIGN KEY ("artist_id") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "artist_profiles" ADD CONSTRAINT "FK_61ee457836557a6751d15287913" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "anamnesis_forms" ADD CONSTRAINT "FK_933722f38e953d25d89d17f8095" FOREIGN KEY ("customer_id") REFERENCES "customers"("id") ON DELETE CASCADE ON UPDATE NO ACTION`);
+        await queryRunner.query(`ALTER TABLE "anamnesis_forms" ADD CONSTRAINT "FK_45d345d4697489b61d2fb2a9b32" FOREIGN KEY ("reviewed_by_artist_id") REFERENCES "users"("id") ON DELETE SET NULL ON UPDATE NO ACTION`);
+        await queryRunner.query(`CREATE TABLE "query-result-cache" ("id" SERIAL NOT NULL, "identifier" character varying, "time" bigint NOT NULL, "duration" integer NOT NULL, "query" text NOT NULL, "result" text NOT NULL, CONSTRAINT "PK_6a98f758d8bfd010e7e10ffd3d3" PRIMARY KEY ("id"))`);
+    }
+
+    public async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.query(`DROP TABLE "query-result-cache"`);
+        await queryRunner.query(`ALTER TABLE "anamnesis_forms" DROP CONSTRAINT "FK_45d345d4697489b61d2fb2a9b32"`);
+        await queryRunner.query(`ALTER TABLE "anamnesis_forms" DROP CONSTRAINT "FK_933722f38e953d25d89d17f8095"`);
+        await queryRunner.query(`ALTER TABLE "artist_profiles" DROP CONSTRAINT "FK_61ee457836557a6751d15287913"`);
+        await queryRunner.query(`ALTER TABLE "commissions" DROP CONSTRAINT "FK_411d5c03ec7173beb83a5957514"`);
+        await queryRunner.query(`ALTER TABLE "commissions" DROP CONSTRAINT "FK_7532e2ddc108af0943e1adba4ad"`);
+        await queryRunner.query(`ALTER TABLE "sessions" DROP CONSTRAINT "FK_3f8511a9b3db3154aa3ded6b868"`);
+        await queryRunner.query(`ALTER TABLE "session_materials" DROP CONSTRAINT "FK_3a07bbf0f3c8062a4df5d60ee78"`);
+        await queryRunner.query(`ALTER TABLE "session_materials" DROP CONSTRAINT "FK_ba72a490447f24c51fe95c0e763"`);
+        await queryRunner.query(`ALTER TABLE "inventory_batches" DROP CONSTRAINT "FK_df9c67302148072b1ee1113d3e1"`);
+        await queryRunner.query(`ALTER TABLE "inventory_items" DROP CONSTRAINT "FK_934d5a332b6870c7bb95643ab41"`);
+        await queryRunner.query(`ALTER TABLE "inventory_categories" DROP CONSTRAINT "FK_66ed00e3d64c865f0d9cc0ca8ce"`);
+        await queryRunner.query(`ALTER TABLE "subscriptions" DROP CONSTRAINT "FK_e45fca5d912c3a2fab512ac25dc"`);
+        await queryRunner.query(`ALTER TABLE "subscriptions" DROP CONSTRAINT "FK_56abca5093a6498c2f1f62d4724"`);
+        await queryRunner.query(`ALTER TABLE "invoices" DROP CONSTRAINT "FK_5152c0aa0f851d9b95972b442e0"`);
+        await queryRunner.query(`ALTER TABLE "invoices" DROP CONSTRAINT "FK_b5e9c01bb6a949b307cc229ac4b"`);
+        await queryRunner.query(`ALTER TABLE "transactions" DROP CONSTRAINT "FK_c09d54644d40718fb05980f350f"`);
+        await queryRunner.query(`ALTER TABLE "transactions" DROP CONSTRAINT "FK_a393e904d8ad32e64d95d4d818e"`);
+        await queryRunner.query(`ALTER TABLE "appointments" DROP CONSTRAINT "FK_eeaa146d58c032a43a572cff419"`);
+        await queryRunner.query(`ALTER TABLE "appointments" DROP CONSTRAINT "FK_2be3c78815aba227af1c3e8e413"`);
+        await queryRunner.query(`ALTER TABLE "appointments" DROP CONSTRAINT "FK_d3e61cac4c98efb5cb315826cbb"`);
+        await queryRunner.query(`ALTER TABLE "role_user" DROP CONSTRAINT "FK_e7debc339652cd0123238ac9caf"`);
+        await queryRunner.query(`ALTER TABLE "role_user" DROP CONSTRAINT "FK_78ee37f2db349d230d502b1c7ea"`);
+        await queryRunner.query(`ALTER TABLE "role_user" DROP CONSTRAINT "FK_2a23ceb75c7511d0523c4aaf492"`);
+        await queryRunner.query(`ALTER TABLE "permission_role" DROP CONSTRAINT "FK_693f65986d1bd7b5bc973e30d76"`);
+        await queryRunner.query(`ALTER TABLE "permission_role" DROP CONSTRAINT "FK_ea144050277434b1ec4a3070614"`);
+        await queryRunner.query(`ALTER TABLE "customers" DROP CONSTRAINT "FK_862d155297243383c2b6274ae56"`);
+        await queryRunner.query(`DROP TABLE "anamnesis_forms"`);
+        await queryRunner.query(`DROP TABLE "artist_profiles"`);
+        await queryRunner.query(`DROP TYPE "public"."artist_profiles_commission_type_enum"`);
+        await queryRunner.query(`DROP TABLE "commissions"`);
+        await queryRunner.query(`DROP TYPE "public"."commissions_status_enum"`);
+        await queryRunner.query(`DROP TABLE "sessions"`);
+        await queryRunner.query(`DROP TABLE "session_materials"`);
+        await queryRunner.query(`DROP TABLE "inventory_batches"`);
+        await queryRunner.query(`DROP TABLE "inventory_items"`);
+        await queryRunner.query(`DROP TABLE "inventory_categories"`);
+        await queryRunner.query(`DROP TABLE "subscriptions"`);
+        await queryRunner.query(`DROP TYPE "public"."subscriptions_status_enum"`);
+        await queryRunner.query(`DROP TABLE "plans"`);
+        await queryRunner.query(`DROP TABLE "invoices"`);
+        await queryRunner.query(`DROP TYPE "public"."invoices_status_enum"`);
+        await queryRunner.query(`DROP TABLE "transactions"`);
+        await queryRunner.query(`DROP TYPE "public"."transactions_payment_method_enum"`);
+        await queryRunner.query(`DROP TYPE "public"."transactions_type_enum"`);
+        await queryRunner.query(`DROP TABLE "appointments"`);
+        await queryRunner.query(`DROP TYPE "public"."appointments_status_enum"`);
+        await queryRunner.query(`DROP TABLE "users"`);
+        await queryRunner.query(`DROP TABLE "role_user"`);
+        await queryRunner.query(`DROP TABLE "roles"`);
+        await queryRunner.query(`DROP TABLE "permission_role"`);
+        await queryRunner.query(`DROP TABLE "permissions"`);
+        await queryRunner.query(`DROP TABLE "studios"`);
+        await queryRunner.query(`DROP TABLE "customers"`);
+    }
+
+}

@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { RoleUserEntity } from './role-user.entity';
+import { ArtistProfileEntity } from './artist-profile.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -36,4 +37,7 @@ export class UserEntity {
 
   @OneToMany(() => RoleUserEntity, (ru: RoleUserEntity): UserEntity => ru.user)
   roleUsers: RoleUserEntity[];
+
+  @OneToMany(() => RoleUserEntity, (ru: RoleUserEntity): UserEntity => ru.user)
+  artistProfile: ArtistProfileEntity[];
 }
