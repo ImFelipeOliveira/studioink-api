@@ -11,6 +11,7 @@ import {
 import { StudioEntity } from './studio.entity';
 import { ReceivableEntity } from './receivable.entity';
 import { PaymentEntity } from './payment.entity';
+import { SaleItemEntity } from './sale-item.entity';
 
 export enum TransactionTypeEnum {
   CREDIT = 'credit',
@@ -20,7 +21,7 @@ export enum TransactionTypeEnum {
 @Entity('transactions')
 export class TransactionEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
-  id: number;
+  id: string;
 
   @Column({ name: 'studio_id', type: 'bigint' })
   studioId: number;
@@ -52,4 +53,7 @@ export class TransactionEntity {
 
   @OneToMany(() => PaymentEntity, (payment) => payment.transaction)
   payments: PaymentEntity[];
+
+  @OneToMany(() => SaleItemEntity, (saleItem) => saleItem.transaction)
+  saleItems: SaleItemEntity[];
 }

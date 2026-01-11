@@ -5,16 +5,16 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { ReceivableEntity } from './receivable.entity';
 import { InventoryItemEntity } from './inventory-items.entity';
+import { TransactionEntity } from './transaction.entity';
 
 @Entity('sale_items')
 export class SaleItemEntity {
   @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: number;
 
-  @Column({ name: 'receivable_id', type: 'uuid' })
-  receivableId: string;
+  @Column({ name: 'transaction_id', type: 'uuid' })
+  transactionId: string;
 
   @Column({ name: 'item_id', type: 'bigint' })
   itemId: number;
@@ -22,11 +22,15 @@ export class SaleItemEntity {
   @Column({ type: 'int', default: 1 })
   quantity: number;
 
-  @ManyToOne(() => ReceivableEntity, (receivable) => receivable.saleItems, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'receivable_id' })
-  receivable: ReceivableEntity;
+  @ManyToOne(
+    () => TransactionEntity,
+    (tr: TransactionEntity): SaleItemEntity[] => tr.saleItems,
+    {
+      onDelete: 'CASCADE',
+    },
+  )
+  @JoinColumn({ name: 'transaction_id' })
+  transaction: TransactionEntity;
 
   @ManyToOne(() => InventoryItemEntity, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'item_id' })

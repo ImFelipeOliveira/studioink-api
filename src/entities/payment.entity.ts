@@ -22,8 +22,8 @@ export enum PaymentStatus {
 
 @Entity('payments')
 export class PaymentEntity {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: number;
+  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  id: string;
 
   @Column({ name: 'studio_id', type: 'bigint' })
   studioId: number;
