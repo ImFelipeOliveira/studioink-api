@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -13,11 +14,12 @@ import { CustomerEntity } from './customer.entity';
 import { TransactionEntity } from './transaction.entity';
 import { PaymentMethod } from './Enum/payment-method.enum';
 import { ReceivableStatus } from './Enum/receivable-status.enum';
+import { SaleItemEntity } from './sale-item.entity';
 
 @Entity('receivables')
 export class ReceivableEntity {
   @PrimaryGeneratedColumn('uuid', { name: 'id' })
-  id: number;
+  id: string;
 
   @Column({ name: 'studio_id', type: 'bigint' })
   studioId: number;
@@ -95,4 +97,7 @@ export class ReceivableEntity {
   )
   @JoinColumn({ name: 'transaction_id' })
   transaction: TransactionEntity | null;
+
+  @OneToMany(() => SaleItemEntity, (item) => item.receivable)
+  saleItems: SaleItemEntity[];
 }

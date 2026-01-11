@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { RoleUserEntity } from './role-user.entity';
 import { CustomerEntity } from './customer.entity';
+import { ArtistProfileEntity } from './artist-profile.entity';
 
 @Entity('studios')
 export class StudioEntity {
@@ -34,4 +35,7 @@ export class StudioEntity {
 
   @OneToMany(() => CustomerEntity, (customer) => customer.studio)
   customers: CustomerEntity[];
+
+  @OneToMany(() => ArtistProfileEntity, (profile) => profile.studio)
+  artistProfiles: ArtistProfileEntity[];
 }

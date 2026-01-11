@@ -38,6 +38,6 @@ export class UserEntity {
   @OneToMany(() => RoleUserEntity, (ru: RoleUserEntity): UserEntity => ru.user)
   roleUsers: RoleUserEntity[];
 
-  @OneToMany(() => RoleUserEntity, (ru: RoleUserEntity): UserEntity => ru.user)
-  artistProfile: ArtistProfileEntity[];
+  @OneToMany(() => ArtistProfileEntity, (profile) => profile.user)
+  artistProfiles: ArtistProfileEntity[];
 }

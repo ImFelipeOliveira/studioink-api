@@ -6,10 +6,13 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { StudioEntity } from './studio.entity';
 import { FinancialCategoryEntity } from './financial-category.entity';
 import { TransactionEntity } from './transaction.entity';
+import { CommissionEntity } from './commission.entity';
+import { InvoiceEntity } from './invoice.entity';
 
 export enum PaymentStatus {
   PENDING = 'pending',
@@ -19,7 +22,7 @@ export enum PaymentStatus {
 
 @Entity('payments')
 export class PaymentEntity {
-  @PrimaryGeneratedColumn('uuid', { name: 'id' })
+  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
   id: number;
 
   @Column({ name: 'studio_id', type: 'bigint' })
@@ -27,6 +30,9 @@ export class PaymentEntity {
 
   @Column({ name: 'category_id', type: 'int' })
   categoryId: number;
+
+  @Column({ name: 'invoice_id', type: 'bigint', nullable: true })
+  invoiceId: number | null;
 
   @Column({ name: 'transaction_id', type: 'bigint', nullable: true })
   transactionId: number | null;
@@ -61,4 +67,14 @@ export class PaymentEntity {
   })
   @JoinColumn({ name: 'transaction_id' })
   transaction: TransactionEntity | null;
+
+  @ManyToOne(() => InvoiceEntity, (invoice) => invoice.payments, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'invoice_id' })
+  invoice: InvoiceEntity | null;
+
+  @OneToMany(() => CommissionEntity, (commission) => commission.payment)
+  commissions: CommissionEntity[];
 }

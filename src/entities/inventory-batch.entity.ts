@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { SessionMaterialEntity } from './session-material.entity';
 import { InventoryItemEntity } from './inventory-items.entity';
+import { PaymentEntity } from './payment.entity';
 
 @Entity('inventory_batches')
 export class InventoryBatchEntity {
@@ -19,8 +20,11 @@ export class InventoryBatchEntity {
   @Column({ name: 'item_id', type: 'bigint' })
   itemId: number;
 
-  @Column({ name: 'batch_number', type: 'int', nullable: true })
-  batchNumber: number | null;
+  @Column({ name: 'payment_id', type: 'bigint', nullable: true })
+  paymentId: number | null;
+
+  @Column({ name: 'batch_number', type: 'varchar', length: 100, nullable: true })
+  batchNumber: string | null;
 
   @Column({ name: 'expiration_date', type: 'date', nullable: true })
   expirationDate: Date | null;
@@ -48,6 +52,10 @@ export class InventoryBatchEntity {
   })
   @JoinColumn({ name: 'item_id' })
   item: InventoryItemEntity;
+
+  @ManyToOne(() => PaymentEntity, { nullable: true, onDelete: 'SET NULL' })
+  @JoinColumn({ name: 'payment_id' })
+  payment: PaymentEntity | null;
 
   @OneToMany(() => SessionMaterialEntity, (material) => material.batch)
   sessionMaterials: SessionMaterialEntity[];

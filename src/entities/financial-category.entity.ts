@@ -4,11 +4,17 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { StudioEntity } from './studio.entity';
-import { FinancialCategoryType } from './Enum/financial-category.enum';
+
+export enum FinancialCategoryType {
+  REVENUE = 'revenue',
+  EXPENSE = 'expense',
+}
 
 @Entity('financial_categories')
+@Unique(['slug', 'studioId'])
 export class FinancialCategoryEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -18,6 +24,9 @@ export class FinancialCategoryEntity {
 
   @Column({ length: 100 })
   name: string;
+
+  @Column({ type: 'varchar', length: 100, nullable: true })
+  slug: string | null;
 
   @Column({ type: 'enum', enum: FinancialCategoryType })
   type: FinancialCategoryType;

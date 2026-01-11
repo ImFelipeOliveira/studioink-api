@@ -11,7 +11,11 @@ import {
 import { StudioEntity } from './studio.entity';
 import { ReceivableEntity } from './receivable.entity';
 import { PaymentEntity } from './payment.entity';
-import { TransactionTypeEnum } from './Enum/transaction-type.enum';
+
+export enum TransactionTypeEnum {
+  CREDIT = 'credit',
+  DEBIT = 'debit',
+}
 
 @Entity('transactions')
 export class TransactionEntity {

@@ -6,9 +6,12 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
+  OneToOne,
+  OneToMany,
 } from 'typeorm';
 import { StudioEntity } from './studio.entity';
 import { SubscriptionEntity } from './subscription.entity';
+import { PaymentEntity } from './payment.entity';
 
 export enum InvoiceStatus {
   OPEN = 'open',
@@ -68,4 +71,7 @@ export class InvoiceEntity {
   )
   @JoinColumn({ name: 'subscription_id' })
   subscription: SubscriptionEntity;
+
+  @OneToMany(() => PaymentEntity, (payment) => payment.invoice)
+  payments: PaymentEntity[];
 }

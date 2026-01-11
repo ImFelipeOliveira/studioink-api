@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
 import { UserEntity } from './user.entity';
+import { PaymentEntity } from './payment.entity';
 
 export enum CommissionStatus {
   PENDING = 'pending',
@@ -25,6 +26,9 @@ export class CommissionEntity {
 
   @Column({ name: 'artist_id', type: 'bigint' })
   artistId: number;
+
+  @Column({ name: 'payment_id', type: 'bigint', nullable: true })
+  paymentId: number | null;
 
   @Column({ name: 'calculation_basis_cents', type: 'bigint', nullable: true })
   calculationBasisCents: string | null;
@@ -61,4 +65,11 @@ export class CommissionEntity {
   @ManyToOne(() => UserEntity, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'artist_id' })
   artist: UserEntity;
+
+  @ManyToOne(() => PaymentEntity, (payment) => payment.commissions, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'payment_id' })
+  payment: PaymentEntity | null;
 }

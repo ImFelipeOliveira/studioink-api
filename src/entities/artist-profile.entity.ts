@@ -4,25 +4,26 @@ import {
   Entity,
   ManyToOne,
   PrimaryColumn,
-  PrimaryGeneratedColumn,
   UpdateDateColumn,
+  JoinColumn,
 } from 'typeorm';
 import { CommissionTypeEnum } from './Enum/commission-type.enum';
 import { UserEntity } from './user.entity';
+import { StudioEntity } from './studio.entity';
 
 @Entity('artist_profiles')
 export class ArtistProfileEntity {
-  @PrimaryGeneratedColumn('increment', { type: 'bigint' })
-  id: number;
-
-  @PrimaryColumn({ name: 'role_id', type: 'bigint' })
+  @PrimaryColumn({ name: 'user_id', type: 'bigint' })
   userId: number;
 
-  @Column({ name: 'bio', type: 'text' })
-  bio: string;
+  @PrimaryColumn({ name: 'studio_id', type: 'bigint' })
+  studioId: number;
 
-  @Column({ name: 'styles', type: 'json' })
-  styles: string;
+  @Column({ name: 'bio', type: 'text', nullable: true })
+  bio: string | null;
+
+  @Column({ name: 'styles', type: 'json', nullable: true })
+  styles: any;
 
   @Column({
     name: 'commission_type',
@@ -32,21 +33,32 @@ export class ArtistProfileEntity {
   })
   commissionType: CommissionTypeEnum;
 
-  @Column({ name: 'default_commission_rate', type: 'int' })
-  defaultCommissionRate: number;
+  @Column({
+    name: 'default_commission_value',
+    type: 'int',
+    nullable: true,
+  })
+  defaultCommissionValue: number | null;
 
-  @Column({ name: 'calendar_color', type: 'int' })
-  calendarColor: string;
+  @Column({
+    name: 'calendar_color',
+    type: 'varchar',
+    length: 7,
+    nullable: true,
+  })
+  calendarColor: string | null;
 
   @CreateDateColumn({ name: 'created_at' })
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
-  updated_at: Date | null;
+  updatedAt: Date | null;
 
-  @ManyToOne(
-    () => UserEntity,
-    (user: UserEntity): ArtistProfileEntity[] => user.artistProfile,
-  )
+  @ManyToOne(() => UserEntity, (user) => user.artistProfiles)
+  @JoinColumn({ name: 'user_id' })
   user: UserEntity;
+
+  @ManyToOne(() => StudioEntity, (studio) => studio.artistProfiles)
+  @JoinColumn({ name: 'studio_id' })
+  studio: StudioEntity;
 }
