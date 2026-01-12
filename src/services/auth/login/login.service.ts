@@ -11,6 +11,7 @@ import { UserEntity } from '../../../entities/user.entity';
 import { RefreshTokenRepository } from '../../../repositories/refresh-token.repository';
 import { LoginResponseDTO } from '../../../controllers/auth/login/DTO/login-response.DTO';
 import { SHA256 } from 'crypto-js';
+import { v4 as uuidV4 } from 'uuid';
 
 @Injectable()
 export class LoginService {
@@ -149,6 +150,11 @@ export class LoginService {
   }
 
   private createPayload(user: UserEntity) {
-    return { sub: user.id, email: user.email, roles: user.roleUsers };
+    return {
+      sub: user.id,
+      email: user.email,
+      roles: user.roleUsers,
+      jit: uuidV4(),
+    };
   }
 }
