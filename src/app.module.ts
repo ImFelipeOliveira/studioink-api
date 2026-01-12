@@ -7,6 +7,7 @@ import { RepositoriesModule } from './repositories/repositories.module';
 import { RegisterController } from './controllers/auth/register/register.controller';
 import { AuthModule } from './services/auth/auth.module';
 import { LoginController } from './controllers/auth/login/login.controller';
+import { PlansController } from './controllers/plans.controller';
 
 @Module({
   imports: [
@@ -19,6 +20,6 @@ import { LoginController } from './controllers/auth/login/login.controller';
     AuthModule,
   ],
   providers: [DatabaseProvider, AuthModule],
-  controllers: [RegisterController, LoginController],
+  controllers: [RegisterController, LoginController, PlansController],
 })
 export class AppModule {}
