@@ -13,6 +13,7 @@ const databaseConfig: PostgresConnectionOptions = {
   synchronize: process.env.NODE_ENV !== 'production',
   cache: true,
 };
+
 export default () => ({
   port: parseInt(process.env.PORT || '3000', 10),
   database: databaseConfig,

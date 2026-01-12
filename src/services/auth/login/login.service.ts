@@ -12,6 +12,7 @@ import { RefreshTokenRepository } from '../../../repositories/refresh-token.repo
 import { LoginResponseDTO } from '../../../controllers/auth/login/DTO/login-response.DTO';
 import { SHA256 } from 'crypto-js';
 import { v4 as uuidV4 } from 'uuid';
+import { TokenPayloadInterface } from '../../../interfaces/token-payload.interface';
 
 @Injectable()
 export class LoginService {
@@ -149,7 +150,7 @@ export class LoginService {
     }
   }
 
-  private createPayload(user: UserEntity) {
+  private createPayload(user: UserEntity): TokenPayloadInterface {
     return {
       sub: user.id,
       email: user.email,
