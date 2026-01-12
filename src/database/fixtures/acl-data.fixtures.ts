@@ -60,7 +60,6 @@ export const SYSTEM_ROLES: {
 ];
 
 export const run = async () => {
-  console.log(configuration().database);
   if (!dataSource.isInitialized) await dataSource.initialize();
   const permRepo: Repository<PermissionEntity> =
     dataSource.getRepository(PermissionEntity);
