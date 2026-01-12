@@ -17,7 +17,7 @@ export class RoleUserEntity {
   id: number;
 
   @PrimaryColumn({ name: 'user_id', type: 'bigint' })
-  userId: string;
+  userId: number;
 
   @PrimaryColumn({ name: 'role_id', type: 'int' })
   roleId: number;

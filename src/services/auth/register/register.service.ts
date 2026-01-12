@@ -3,9 +3,9 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
-import { UserRepository } from '../../../../repositories/user.repository';
-import { RegisterUserDTO } from '../../../../controllers/auth/register/DTO/RegisterUserDTO';
-import { UserEntity } from '../../../../entities/user.entity';
+import { UserRepository } from '../../../repositories/user.repository';
+import { RegisterUserDTO } from '../../../controllers/auth/register/DTO/RegisterUserDTO';
+import { UserEntity } from '../../../entities/user.entity';
 import { genSaltSync, hashSync } from 'bcrypt-ts';
 
 @Injectable()

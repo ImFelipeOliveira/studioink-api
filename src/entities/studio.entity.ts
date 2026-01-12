@@ -2,6 +2,8 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -9,6 +11,7 @@ import {
 import { RoleUserEntity } from './role-user.entity';
 import { CustomerEntity } from './customer.entity';
 import { ArtistProfileEntity } from './artist-profile.entity';
+import { UserEntity } from './user.entity';
 
 @Entity('studios')
 export class StudioEntity {
@@ -21,6 +24,9 @@ export class StudioEntity {
   @Column({ length: 255, unique: true, nullable: false })
   slug: string;
 
+  @Column({ name: 'owner_id', type: 'bigint', nullable: false })
+  ownerId: number;
+
   @Column({ type: 'json', name: 'config_settings', nullable: true })
   configSettings: string;
 
@@ -29,6 +35,12 @@ export class StudioEntity {
 
   @UpdateDateColumn({ name: 'updated_at', nullable: true })
   updatedAt: Date | null;
+
+  @ManyToOne(() => UserEntity, (user: UserEntity) => user.ownedStudios, {
+    onDelete: 'RESTRICT',
+  })
+  @JoinColumn({ name: 'owner_id' })
+  owner: UserEntity;
 
   @OneToMany(() => RoleUserEntity, (ru) => ru.studio)
   roleUsers: RoleUserEntity[];

@@ -4,7 +4,7 @@ import { RoleEntity } from './role.entity';
 
 @Entity('permission_role')
 export class PermissionRoleEntity {
-  @PrimaryColumn({ name: 'permission_id', type: 'int' })
+  @PrimaryColumn({ name: 'permission_id', type: 'bigint' })
   permissionId: number;
 
   @PrimaryColumn({ name: 'role_id', type: 'int' })

@@ -1,6 +1,8 @@
 services:
   app:
-    build: .
+    build:
+      context: .
+      target: ${NODE_ENV:-dev}
     ports:
       - "3000:3000"
     volumes:
@@ -14,7 +16,7 @@ services:
     depends_on:
       - kafka
       - database
-    command: node dist/main.js
+    command: npm run start:dev
     restart: unless-stopped
 
   database:

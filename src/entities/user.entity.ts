@@ -8,6 +8,7 @@ import {
 } from 'typeorm';
 import { RoleUserEntity } from './role-user.entity';
 import { ArtistProfileEntity } from './artist-profile.entity';
+import { StudioEntity } from './studio.entity';
 
 @Entity('users')
 export class UserEntity {
@@ -35,6 +36,9 @@ export class UserEntity {
     update: true,
   })
   updatedAt: Date | null;
+
+  @OneToMany(() => StudioEntity, (studio) => studio.owner)
+  ownedStudios: StudioEntity[];
 
   @OneToMany(() => RoleUserEntity, (ru: RoleUserEntity): UserEntity => ru.user)
   roleUsers: RoleUserEntity[];
