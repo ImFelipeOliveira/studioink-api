@@ -8,8 +8,8 @@ const databaseConfig: PostgresConnectionOptions = {
   username: process.env.POSTGRES_USER || 'user',
   password: process.env.POSTGRES_PASSWORD || 'password',
   database: process.env.POSTGRES_DB || 'studio_db',
-  entities: [path.join(__dirname, '..', 'entities', '*{.ts,.js}')],
-  migrations: [path.join(__dirname + '/migrations/*{.ts,.js}')],
+  entities: [path.join(__dirname, '..', 'entities', '*.{ts,js}')],
+  migrations: [path.join(__dirname, '..', 'migrations', '*.{ts,js}')],
   synchronize: process.env.NODE_ENV !== 'production',
   cache: true,
 };

@@ -3,6 +3,7 @@ import dataSource from '../../data-source';
 import { Repository } from 'typeorm';
 import { RoleEntity } from '../../entities/role.entity';
 import { PermissionRoleEntity } from '../../entities/permission-role.entity';
+import configuration from '../../config/configuration';
 
 export const PERMISSIONS_LIST: { slug: string; name: string }[] = [
   // --- AGENDAMENTOS ---
@@ -59,6 +60,7 @@ export const SYSTEM_ROLES: {
 ];
 
 export const run = async () => {
+  console.log(configuration().database);
   if (!dataSource.isInitialized) await dataSource.initialize();
   const permRepo: Repository<PermissionEntity> =
     dataSource.getRepository(PermissionEntity);

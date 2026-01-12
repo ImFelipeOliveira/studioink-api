@@ -19,7 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "typeorm-ts-node-commonjs -d ./src/data-source.ts",
-    "fixture:acl": "ts-node ./src/database/fixtures/acl-data.fixtures.ts"
+    "fixture:acl": "ts-node ./src/database/fixtures/acl-data.fixtures.ts",
+    "fixture:plans": "ts-node ./src/database/fixtures/plans.fixtures.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

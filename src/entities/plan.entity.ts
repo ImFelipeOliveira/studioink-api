@@ -21,13 +21,13 @@ export class PlanEntity {
   description: string | null;
 
   @Column({ name: 'price_monthly_cents', type: 'bigint' })
-  priceMonthlyCents: string;
+  priceMonthlyCents: number;
 
   @Column({ name: 'price_yearly_cents', type: 'bigint' })
-  priceYearlyCents: string;
+  priceYearlyCents: number;
 
   @Column({ type: 'json' })
-  features: any;
+  features: string;
 
   @Column({ name: 'is_active', default: true })
   isActive: boolean;
@@ -35,6 +35,6 @@ export class PlanEntity {
   @CreateDateColumn({ name: 'created_at', nullable: true, update: true })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', nullable: true })
+  @UpdateDateColumn({ name: 'updated_at', update: true, nullable: true })
   updatedAt: Date | null;
 }
