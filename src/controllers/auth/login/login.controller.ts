@@ -25,9 +25,7 @@ export class LoginController {
     const ipAddress = request.ip;
     const userAgent = request.headers['user-agent'] || '';
 
-    loginDTO.ipAddress = ipAddress;
-    loginDTO.userAgent = userAgent;
-    return this.loginService.login(loginDTO);
+    return this.loginService.login(loginDTO, ipsAddress, userAgent);
   }
 
   @Post('/refresh-token')

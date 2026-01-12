@@ -21,7 +21,11 @@ export class LoginService {
     private readonly refreshTokenRepository: RefreshTokenRepository,
     private readonly jwtService: JwtService,
   ) {}
-  public async login(loginDTO: LoginDTO): Promise<LoginResponseDTO> {
+  public async login(
+    loginDTO: LoginDTO,
+    ipAddress: string,
+    userAgent: string,
+  ): Promise<LoginResponseDTO> {
     const user: UserEntity | null = await this.userRepository.findByEmail(
       loginDTO.email,
     );
@@ -45,7 +49,7 @@ export class LoginService {
 
     await this.refreshTokenRepository.revokeAllForUserIdAndDevice({
       userId: user.id,
-      device: loginDTO.userAgent,
+      device: userAgent,
     });
 
     const hash = SHA256(refreshToken).toString();
@@ -53,8 +57,8 @@ export class LoginService {
       userId: user.id,
       hash: hash,
       expiresAt: new Date(Date.now() + this.SEVEN_DAYS_IN_MS),
-      ipAddress: loginDTO.ipAddress,
-      userAgent: loginDTO.userAgent,
+      ipAddress: ipAddress,
+      userAgent: userAgent,
     });
 
     return new LoginResponseDTO(

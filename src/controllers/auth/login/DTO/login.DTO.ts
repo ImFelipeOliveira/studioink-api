@@ -1,4 +1,4 @@
-import { IsEmail, IsOptional, IsStrongPassword } from 'class-validator';
+import { IsEmail, IsStrongPassword } from 'class-validator';
 
 export class LoginDTO {
   @IsEmail({}, { message: 'Invalid email format' })
@@ -6,10 +6,4 @@ export class LoginDTO {
 
   @IsStrongPassword()
   password: string;
-
-  @IsOptional()
-  ipAddress: string;
-
-  @IsOptional()
-  userAgent: string;
 }
